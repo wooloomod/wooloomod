@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ParticleMixin {
 	@Inject(method = "onParticle(Lnet/minecraft/network/packet/s2c/play/ParticleS2CPacket;)V", at = @At("RETURN"))
 	public void afterOnParticle(ParticleS2CPacket packet, CallbackInfo ci) {
-		if(packet.getParameters().getType() == ParticleTypes.FIREWORK) {
+		if(packet.getParameters().getType() == ParticleTypes.INSTANT_EFFECT) {
 			MinecraftClient client = MinecraftClient.getInstance();
 			if(client.player != null) {
 				if(client.player.getX() > 10000 && client.player.getX() < 11000 && client.player.getZ() > 3500 && client.player.getZ() < 4500) {
