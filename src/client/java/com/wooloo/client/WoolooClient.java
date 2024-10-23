@@ -6,10 +6,13 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -23,9 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -36,6 +37,7 @@ public class WoolooClient implements ClientModInitializer {
 			.orElse("1.0.0");
 	public static final Logger LOGGER = LoggerFactory.getLogger("wooloo");
 	public static final Options optionsInstance = Options.getInstance();
+	public static final RaidDetection raidStatusInstance = RaidDetection.getInstance();
 	private boolean durabilityWarning = true;
 	private int tickCounter = 0;
 	@Override
@@ -49,6 +51,13 @@ public class WoolooClient implements ClientModInitializer {
 		HudRenderCallback.EVENT.register((matrixStack, tickDelta) -> {
 			MinecraftClient client = MinecraftClient.getInstance();
 			ClientPlayerEntity player = client.player;
+			int[] renderStatus = raidStatusInstance.getRenderStatus();
+			if(renderStatus[0] == 1 && client.currentScreen == null && raidStatusInstance.getRaidStatus() && raidStatusInstance.getCurrentChallenge() == 1) {
+				float x = 10;
+				float y = client.getWindow().getScaledHeight() - 10 - client.textRenderer.fontHeight;
+				int color = 0x808080;
+				renderText(client, "Wings: " + renderStatus[1] + " " + renderStatus[2] + " " + renderStatus[3], x, y, color);
+			}
 			JSONObject options = optionsInstance.getData();
 			if(options.get("antiblindness").toString().equals("true")) {
 				if (player != null && player.hasStatusEffect(StatusEffects.BLINDNESS)) {
@@ -113,10 +122,21 @@ public class WoolooClient implements ClientModInitializer {
 				}
 			}
 			});
+		ClientReceiveMessageEvents.GAME.register((message, overlay) -> {
+			if(message.getString().contains("Raid Failed") || message.getString().contains("Raid Completed")) {
+				raidStatusInstance.setRaidStatus(false);
+				raidStatusInstance.setCurrentChallenge(1);
+			}
+		});
 	}
 	private boolean ifInTooltip(ItemStack itemStack, String searchString) {
 		List<Text> tooltip = itemStack.getTooltip(Item.TooltipContext.DEFAULT, MinecraftClient.getInstance().player, TooltipType.BASIC);
 		return tooltip.stream()
 				.anyMatch(text -> text.getString().toLowerCase().contains(searchString.toLowerCase()));
+	}
+	private void renderText(MinecraftClient client, String message, float x, float y, int color) {
+		TextRenderer textRenderer = client.textRenderer;
+		MatrixStack matrixStack = new MatrixStack();
+		textRenderer.draw(Text.literal(message), x, y, color, false, matrixStack.peek().getPositionMatrix(), client.getBufferBuilders().getEntityVertexConsumers(), TextRenderer.TextLayerType.NORMAL, 0, 15728880);
 	}
 }
