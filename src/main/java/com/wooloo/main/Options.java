@@ -6,9 +6,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Iterator;
 
 public final class Options {
-	private final String json = "{\"antiblindness\":\"true\",\"wooloo\":\"true\"}";
+	private final String json = "{\"antiblindness\":\"true\",\"autowings\":\"true\",\"durabilitywarning\":\"true\",\"version\":\"1.0.0\"}";
 	private final String filepath = "WoolooMod/optionswooloomod.json";
 	private static Options instance;
 	private boolean changed = false;
@@ -68,5 +69,20 @@ public final class Options {
 			e.printStackTrace();
 		}
 		return new JSONObject(sb.toString());
+	}
+	public void updateVersion(String currentVersion) {
+		String version = options.optString("version", "1.0.0");
+		if(version.compareTo(currentVersion) < 0) {
+			JSONObject defaultOptions = new JSONObject(json);
+			Iterator<String> keys = defaultOptions.keys();
+			while(keys.hasNext()) {
+				String key = keys.next();
+				if(!options.has(key)) {
+					options.put(key, defaultOptions.get(key));
+				}
+			}
+			options.put("version", currentVersion);
+			changed = true;
+		}
 	}
 }

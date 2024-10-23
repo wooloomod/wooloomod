@@ -3,6 +3,8 @@ plugins {
 	id 'maven-publish'
 }
 
+def modVersion = project.findProperty("mod_version") ?: "1.0.0"
+
 version = project.mod_version
 group = project.maven_group
 

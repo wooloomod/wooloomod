@@ -35,7 +35,6 @@ public class ConfigMenu extends Screen {
 						.dimensions(width / 2 - 205, 20, 200, 20)
 								.tooltip(Tooltip.of(Text.literal("Stops the blindness potion effect from rendering")))
 										.build();
-		//button2 = new TextFieldWidget((Text.literal("API Key: ")) button -> {});
 		addDrawableChild(button1);
 		button2 = ButtonWidget.builder(Text.literal("Auto TCC Wings: " + options.get("autowings").toString()), button -> {
 					if(options.get("autowings").toString().equals("true")) {
@@ -47,11 +46,11 @@ public class ConfigMenu extends Screen {
 						button2.setMessage(Text.literal("Auto TCC Wings: true"));
 					}
 				})
-				.dimensions(width / 2 - 205, 20, 200, 20)
+				.dimensions(width / 2 - 205, 20 + 25, 200, 20)
 				.tooltip(Tooltip.of(Text.literal("Gives you the location of the exit in TCC wings room")))
 				.build();
 		addDrawableChild(button2);
-		button3 = ButtonWidget.builder(Text.literal("Auto TCC Wings: " + options.get("durabilitywarning").toString()), button -> {
+		button3 = ButtonWidget.builder(Text.literal("Durability Warning: " + options.get("durabilitywarning").toString()), button -> {
 					if(options.get("durabilitywarning").toString().equals("true")) {
 						instance.setJsonValue("durabilitywarning", "false");
 						button3.setMessage(Text.literal("Durability Warning: false"));
@@ -61,7 +60,7 @@ public class ConfigMenu extends Screen {
 						button3.setMessage(Text.literal("Durability Warning: true"));
 					}
 				})
-				.dimensions(width / 2 - 205, 20, 200, 20)
+				.dimensions(width / 2 - 205 + 200+10, 20, 200, 20)
 				.tooltip(Tooltip.of(Text.literal("Warns you about low durability crafted items")))
 				.build();
 		addDrawableChild(button3);
