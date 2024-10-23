@@ -38,7 +38,9 @@ public class RaidDetectionMixin {
 						.filter(entry -> entry.name().getString().contains("Challenges:"))
 						.forEach(entry -> {
 							Matcher matcher = pattern.matcher(entry.name().getString());
-							challenge.set(Integer.parseInt(matcher.group(1)));
+							if(matcher.find()) {
+								challenge.set(Integer.parseInt(matcher.group(1)));
+							}
 						});
 				raidStatusInstance.setCurrentChallenge(challenge.get());
 			}
