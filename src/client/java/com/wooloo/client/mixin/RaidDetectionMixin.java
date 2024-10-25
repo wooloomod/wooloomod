@@ -7,6 +7,7 @@ import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.ScoreboardEntry;
 import net.minecraft.scoreboard.ScoreboardObjective;
+import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,7 +38,7 @@ public class RaidDetectionMixin {
 				entries.stream()
 						.filter(entry -> entry.name().getString().contains("Challenges:"))
 						.forEach(entry -> {
-							Matcher matcher = pattern.matcher(entry.name().getString());
+							Matcher matcher = pattern.matcher(Formatting.strip(entry.name().getString()));
 							if(matcher.find()) {
 								challenge.set(Integer.parseInt(matcher.group(1)));
 							}
