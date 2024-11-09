@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -52,11 +53,29 @@ public class WoolooClient implements ClientModInitializer {
 			MinecraftClient client = MinecraftClient.getInstance();
 			ClientPlayerEntity player = client.player;
 			int[] renderStatus = raidStatusInstance.getRenderStatus();
-			if(renderStatus[0] == 1 && client.currentScreen == null && raidStatusInstance.getRaidStatus() && raidStatusInstance.getCurrentChallenge() == 1) {
+			double dist = Double.MAX_VALUE;
+			String colorText = "";
+			if(renderStatus[0] == 1 && raidStatusInstance.getRaidStatus() && raidStatusInstance.getCurrentChallenge() == 1) {
 				float x = 10;
 				float y = client.getWindow().getScaledHeight() - 10 - client.textRenderer.fontHeight;
 				int color = 0x808080;
-				renderText(client, "Wings: " + renderStatus[1] + " " + renderStatus[2] + " " + renderStatus[3], x, y, color);
+				Map<int[], String> wingsCoords = raidStatusInstance.getWingsCoords();
+				double minDistance = Double.MAX_VALUE;
+				for(Map.Entry<int[], String> entry : wingsCoords.entrySet()) {
+					int[] keyArray = entry.getKey();
+					String value = entry.getValue();
+					dist = distance(keyArray, new int[]{renderStatus[1], renderStatus[2], renderStatus[3]});
+					if(dist <= minDistance) {
+						minDistance = dist;
+						colorText = value;
+					}
+				}
+				if(dist <= 10) {
+					renderText(client, colorText + ": " + renderStatus[1] + " " + renderStatus[2] + " " + renderStatus[3], x, y, color);
+				}
+				else {
+					renderText(client, "Wings: " + renderStatus[1] + " " + renderStatus[2] + " " + renderStatus[3], x, y, color);
+				}
 			}
 			JSONObject options = optionsInstance.getData();
 			if(options.get("antiblindness").toString().equals("true")) {
@@ -83,6 +102,15 @@ public class WoolooClient implements ClientModInitializer {
 				.executes(context -> {
 							MinecraftClient client = context.getSource().getClient();
 							client.send(() -> client.setScreen(new ConfigMenu()));
+							return 1;
+						}
+				)));
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("woolootest")
+						.executes(context -> {
+							MinecraftClient client = context.getSource().getClient();
+							int[] r = raidStatusInstance.getRenderStatus();
+							boolean rStatus = raidStatusInstance.getRaidStatus();
+							client.player.sendMessage(Text.literal("[WOOLOOMOD] renderStatus: " + r[0] + " x: " + r[1] + " y: " + r[2] + " z: " + r[3] + "\n" + "raidStatus: " + rStatus));
 							return 1;
 						}
 				)));
@@ -138,5 +166,12 @@ public class WoolooClient implements ClientModInitializer {
 		TextRenderer textRenderer = client.textRenderer;
 		MatrixStack matrixStack = new MatrixStack();
 		textRenderer.draw(Text.literal(message), x, y, color, false, matrixStack.peek().getPositionMatrix(), client.getBufferBuilders().getEntityVertexConsumers(), TextRenderer.TextLayerType.NORMAL, 0, 15728880);
+	}
+	private double distance(int[] d1, int[] d2) {
+		double sum = 0;
+		for(int i = 0; i < d1.length; i++) {
+			sum += Math.pow(d1[i] - d2[i], 2);
+		}
+		return Math.sqrt(sum);
 	}
 }

@@ -48,6 +48,7 @@ public class RaidDetectionMixin {
 			if(!raidStatusInstance.getRaidStatus()) {
 				int[] x = {0, 0, 0, 0};
 				raidStatusInstance.setRenderStatus(x);
+				raidStatusInstance.setCurrentChallenge(0);
 			}
 		}
 	}
