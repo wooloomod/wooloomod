@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "wooloo",
+	"version": "${version}",
+	"name": "wooloo",
+	"description": ":)",
+	"authors": [
+		"wooloo"
+	],
+	"contact": {
+		"homepage": "",
+		"sources": ""
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/wooloo/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.wooloo.main.Wooloo"
+		],
+		"client": [
+			"com.wooloo.client.WoolooClient"
+		]
+	},
+	"mixins": [
+		"wooloo.mixins.client.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.15.11",
+		"minecraft": "~1.21",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
